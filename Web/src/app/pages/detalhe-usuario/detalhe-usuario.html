@@ -1,0 +1,331 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="flex items-center justify-center py-12">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p class="text-gray-600">Carregando dados do usuário...</p>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading) {
+      <!-- Cabeçalho -->
+      <div class="mb-8">
+        <button
+          routerLink="/usuarios"
+          class="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 transition duration-150 ease-in-out"
+        >
+          <span class="material-icons">arrow_back</span>
+          <span class="font-medium cursor-pointer" routerLink="/usuarios">Voltar para lista de usuários</span>
+        </button>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <span class="material-icons text-blue-600 text-4xl">
+                {{ isNewUser ? 'person_add' : 'person' }}
+              </span>
+              {{ isNewUser ? 'Novo Usuário' : 'Detalhes do Usuário' }}
+            </h1>
+            <p class="mt-2 text-sm text-gray-600">
+              {{ isNewUser ? 'Preencha os dados para criar um novo usuário' : 'Visualize e edite as informações do usuário' }}
+            </p>
+          </div>
+
+          @if (!isNewUser) {
+            <button
+              (click)="excluirUsuario()"
+              class="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-150 ease-in-out shadow-lg hover:shadow-xl"
+            >
+              <span class="material-icons">delete</span>
+              Excluir
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Card com Formulário -->
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Avatar e Info Rápida -->
+        <div class="p-8 bg-gradient-to-r from-blue-600 to-indigo-600">
+          <div class="flex items-center gap-6">
+            <div class="flex-shrink-0 h-24 w-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <span class="material-icons text-blue-600 text-5xl">person</span>
+            </div>
+            <div class="flex-1 text-white">
+              <h2 class="text-2xl font-bold">{{ usuario.nome || 'Novo Usuário' }}</h2>
+              <p class="text-blue-100 mt-1">{{ usuario.email || 'Email não informado' }}</p>
+              @if (!isNewUser) {
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="material-icons text-sm">badge</span>
+                  <span class="text-sm">ID: {{ usuario.id }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulário -->
+        <form (ngSubmit)="salvarUsuario()" class="p-8">
+          <div class="space-y-8">
+            <!-- Seção: Informações Básicas -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="material-icons text-blue-600">account_circle</span>
+                Informações Básicas
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Nome -->
+                <div class="md:col-span-2">
+                  <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">person</span>
+                    </div>
+                    <input
+                      id="nome"
+                      type="text"
+                      [(ngModel)]="usuario.nome"
+                      name="nome"
+                      required
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+                      placeholder="Digite o nome completo"
+                    />
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">email</span>
+                    </div>
+                    <input
+                      id="email"
+                      type="email"
+                      [(ngModel)]="usuario.email"
+                      name="email"
+                      required
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
+                </div>
+
+                <!-- Idade -->
+                <div>
+                  <label for="idade" class="block text-sm font-medium text-gray-700 mb-2">
+                    Idade *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">cake</span>
+                    </div>
+                    <input
+                      id="idade"
+                      type="number"
+                      [(ngModel)]="usuario.idade"
+                      name="idade"
+                      required
+                      min="18"
+                      max="120"
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+                      placeholder="18"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seção: Perfil e Acesso -->
+            <div class="pt-6 border-t border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="material-icons text-blue-600">security</span>
+                Perfil e Acesso
+              </h3>
+
+              <div class="grid grid-cols-1 gap-6">
+                <!-- Perfil -->
+                <div>
+                  <label for="perfil" class="block text-sm font-medium text-gray-700 mb-2">
+                    Perfil *
+                    @if (!canEditPerfil()) {
+                      <span class="ml-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                        <span class="material-icons text-xs align-middle">lock</span>
+                        Apenas administradores podem alterar
+                      </span>
+                    }
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">badge</span>
+                    </div>
+                    <select
+                      id="perfil"
+                      [(ngModel)]="usuario.perfil"
+                      name="perfil"
+                      [disabled]="!canEditPerfil()"
+                      [class.bg-gray-100]="!canEditPerfil()"
+                      [class.cursor-not-allowed]="!canEditPerfil()"
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none"
+                    >
+                      @for (perfil of perfisDisponiveis; track perfil) {
+                        <option [value]="perfil">{{ perfil }}</option>
+                      }
+                    </select>
+                  </div>
+                  @if (!canEditPerfil()) {
+                    <p class="mt-2 text-sm text-gray-500 flex items-center gap-1">
+                      <span class="material-icons text-xs">info</span>
+                      Você não tem permissão para alterar o perfil do usuário
+                    </p>
+                  }
+                </div>
+
+                <!-- Badge de Perfil Atual -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <div class="flex items-center gap-3">
+                    <div [style.background-color]="getPerfilColor(usuario.perfil)" class="h-3 w-3 rounded-full"></div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Perfil atual: {{ usuario.perfil }}</p>
+                      <p class="text-xs text-gray-500 mt-1">Este perfil define as permissões de acesso do usuário</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seção: Informações Pessoais -->
+            <div class="pt-6 border-t border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="material-icons text-blue-600">info</span>
+                Informações Pessoais
+              </h3>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sexo -->
+                <div>
+                  <label for="sexo" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sexo *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">
+                        {{ usuario.sexo === 'Masculino' ? 'male' : usuario.sexo === 'Feminino' ? 'female' : 'transgender' }}
+                      </span>
+                    </div>
+                    <select
+                      id="sexo"
+                      [(ngModel)]="usuario.sexo"
+                      name="sexo"
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none"
+                    >
+                      @for (sexo of sexosDisponiveis; track sexo) {
+                        <option [value]="sexo">{{ sexo }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Estado Civil -->
+                <div>
+                  <label for="estadoCivil" class="block text-sm font-medium text-gray-700 mb-2">
+                    Estado Civil *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">favorite</span>
+                    </div>
+                    <select
+                      id="estadoCivil"
+                      [(ngModel)]="usuario.estadoCivil"
+                      name="estadoCivil"
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none"
+                    >
+                      @for (estado of estadosCivisDisponiveis; track estado) {
+                        <option [value]="estado">{{ estado }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Nacionalidade -->
+                <div class="md:col-span-2">
+                  <label for="nacionalidade" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nacionalidade *
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="material-icons text-gray-400 text-xl">public</span>
+                    </div>
+                    <select
+                      id="nacionalidade"
+                      [(ngModel)]="usuario.nacionalidade"
+                      name="nacionalidade"
+                      class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none"
+                    >
+                      @for (nacionalidade of nacionalidadesDisponiveis; track nacionalidade) {
+                        <option [value]="nacionalidade">{{ nacionalidade }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="pt-6 border-t border-gray-200">
+              <div class="flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  (click)="cancelar()"
+                  class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-150 ease-in-out font-medium"
+                >
+                  Cancelar
+                </button>
+
+                <div class="flex items-center gap-4">
+                  @if (!isNewUser) {
+                    <button
+                      type="button"
+                      (click)="excluirUsuario()"
+                      class="flex items-center gap-2 px-6 py-3 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition duration-150 ease-in-out font-medium"
+                    >
+                      <span class="material-icons">delete</span>
+                      Excluir
+                    </button>
+                  }
+
+                  <button
+                    type="submit"
+                    class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition duration-150 ease-in-out shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
+                  >
+                    <span class="material-icons">{{ isNewUser ? 'add' : 'save' }}</span>
+                    {{ isNewUser ? 'Criar Usuário' : 'Salvar Alterações' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nota sobre campos obrigatórios -->
+            <div class="flex items-start gap-2 p-4 bg-blue-50 rounded-lg">
+              <span class="material-icons text-blue-600 text-sm mt-0.5">info</span>
+              <div class="text-sm text-blue-800">
+                <p class="font-medium">Campos obrigatórios</p>
+                <p class="text-blue-700 mt-1">Os campos marcados com * são obrigatórios e devem ser preenchidos.</p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>
