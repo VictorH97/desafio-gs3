@@ -1,5 +1,6 @@
 using API.Models.Request;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -20,12 +21,7 @@ namespace API.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-                {
-                    return BadRequest(new { message = "Usuário e senha são obrigatórios" });
-                }
-
-                var token = await _userService.LoginAsync(request.Username, request.Password);
+                var token = await _userService.LoginAsync(request.Email, request.Senha);
 
                 return Ok(token);
             }
@@ -40,11 +36,12 @@ namespace API.Controllers
         }
 
         [HttpGet("users")]
+        [Authorize(Roles = "Criar, Ler, Atualizar, Deletar")]
         public async Task<IActionResult> GetUsers()
         {
             try
             {
-                var users = await _userService.GetAllUsersAsync();
+                var users = await _userService.GetAllAsync();
                 return Ok(users);
             }
             catch (Exception)
@@ -54,11 +51,12 @@ namespace API.Controllers
         }
 
         [HttpGet("users/{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        [Authorize(Roles = "Ler")]
+        public async Task<IActionResult> GetUserById(Guid id)
         {
             try
             {
-                var user = await _userService.GetUserByIdAsync(id);
+                var user = await _userService.GetByIdAsync(id);
                 return Ok(user);
             }
             catch (Exception ex)
@@ -68,16 +66,17 @@ namespace API.Controllers
         }
 
         [HttpPost("users")]
+        [Authorize(Roles = "Criar")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+                if (string.IsNullOrWhiteSpace(request.Nome) || string.IsNullOrWhiteSpace(request.Senha))
                 {
-                    return BadRequest(new { message = "Usuário e senha são obrigatórios" });
+                    return BadRequest(new { message = "Nome e senha são obrigatórios" });
                 }
 
-                var user = await _userService.CreateUserAsync(request.Username, request.Password);
+                var user = await _userService.CreateAsync(request);
                 return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
             catch (Exception ex)
@@ -87,17 +86,13 @@ namespace API.Controllers
         }
 
         [HttpPut("users/{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+        [Authorize(Roles = "Atualizar")]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-                {
-                    return BadRequest(new { message = "Usuário e senha são obrigatórios" });
-                }
-
-                await _userService.UpdateUserAsync(id, request.Username, request.Password);
-                return Ok(user);
+                await _userService.UpdateUserAsync(request);
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -106,7 +101,8 @@ namespace API.Controllers
         }
 
         [HttpDelete("users/{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [Authorize(Roles = "Deletar")]
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {

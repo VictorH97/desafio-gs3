@@ -27,6 +27,12 @@ This is an ASP.NET Core Web API following the MVC pattern. It includes User and 
    dotnet publish -c Release -o ./publish  
    ```
 
+5. Run the migrations
+   ```
+      dotnet ef migrations add InitialCreate
+      dotnet ef database update
+   ```
+
 ## Project Structure
 - `Controllers/` - API controllers
 - `Models/` - Domain models

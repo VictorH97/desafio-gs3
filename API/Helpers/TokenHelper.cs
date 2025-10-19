@@ -16,14 +16,22 @@ namespace API.Helpers
             _configuration = configuration;
         }
 
-        public AccessToken GenerateJwtToken(User user)
+        public AccessToken GenerateJwtToken(Usuario user)
         {
             var claims = new List<Claim>()
             {
                 new Claim("Id", user.Id.ToString()),
-                new Claim("Name", user.Username),
-                new Claim("Email", user.Email),
+                new Claim("Nome", user.Nome),
+                new Claim("Email", user.Email)
             };
+
+            if (user.Perfil != null)
+            {
+                foreach (var permissao in user.Perfil.Permissoes.Split(','))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, permissao.Trim()));
+                }
+            }
 
             var expires = DateTime.Now.AddHours(6);
 
@@ -42,6 +50,22 @@ namespace API.Helpers
                 Token = token,
                 ExpiresIn = expires
             };
+        }
+
+        public string GenerateHash(string input)
+        {
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(input);
+                var hashBytes = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+        
+        public bool VerifyHash(string input, string hash)
+        {
+            var inputHash = GenerateHash(input);
+            return inputHash == hash;
         }
     }
 }

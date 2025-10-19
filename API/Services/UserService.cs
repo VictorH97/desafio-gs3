@@ -2,6 +2,7 @@ using API.Models;
 using API.Repositories;
 using API.Helpers;
 using System.Threading.Tasks;
+using API.Models.Request;
 
 namespace API.Services
 {
@@ -16,26 +17,53 @@ namespace API.Services
             _tokenHelper = tokenHelper;
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<AccessToken> LoginAsync(string email, string senha)
         {
-            return await _userRepository.GetByUsernameAsync(username);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
+            {
+                throw new UnauthorizedAccessException("Email ou senha inválidos");
+            }
+
+            var user = await _userRepository.GetByEmailAsync(email);
+
+            if (user != null)
+            {
+                if (_tokenHelper.VerifyHash(senha, user.Senha))
+                {
+                    return _tokenHelper.GenerateJwtToken(user);
+                }
+            }
+
+            throw new UnauthorizedAccessException("Usuário ou senha inválidos");
         }
 
-        public async Task<bool> ValidateLoginAsync(string username, string password)
+        public async Task<IEnumerable<Usuario>> GetAllAsync()
         {
-            var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null) return false;
-            // Troque para validação de hash em produção
-            return "aviation25" == password;
+            return await _userRepository.GetAllAsync();
         }
 
-        public async Task<AccessToken> LoginAsync(string username, string password)
-        {            
-            // Troque para validação de hash em produção
-            if (username != "aviadores" || password != "aviation*25")
-                throw new UnauthorizedAccessException("Invalid username or password");
+        public async Task<Usuario?> GetByIdAsync(Guid id)
+        {
+            return await _userRepository.GetByIdAsync(id);
+        }
 
-            return _tokenHelper.GenerateJwtToken(new User() { Id = new Guid("3840f174-a533-44e1-9cd7-9cef0441892d"), Email = "brazilaviation1@gmail.com", Username = "greece" });
+        public async Task<Usuario> CreateAsync(CreateUserRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task UpdateUserAsync(UpdateUserRequest request)
+        {
+            var user = await _userRepository.GetByIdAsync(request.Id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("Usuário não encontrado");
+            }
+        }
+
+        public async Task DeleteUserAsync(Guid id)
+        {
+            await _userRepository.DeleteAsync(id);
         }
     }
 }
