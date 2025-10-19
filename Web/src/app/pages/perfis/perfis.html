@@ -1,0 +1,252 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Cabeçalho -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <span class="material-icons text-blue-600 text-4xl">badge</span>
+            Perfis do Sistema
+          </h1>
+          <p class="mt-2 text-sm text-gray-600">
+            Gerencie os perfis de acesso e suas permissões
+          </p>
+        </div>
+        <button
+          (click)="toggleForm()"
+          [class]="showForm ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'"
+          class="flex items-center gap-2 px-6 py-3 text-white rounded-lg transition duration-150 ease-in-out shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        >
+          <span class="material-icons">{{ showForm ? 'close' : 'add' }}</span>
+          {{ showForm ? 'Cancelar' : 'Novo Perfil' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulário de Novo Perfil -->
+    @if (showForm) {
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 animate-fade-in">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <span class="material-icons text-blue-600">{{ editingId ? 'edit' : 'add_circle' }}</span>
+          {{ editingId ? 'Editar Perfil' : 'Adicionar Novo Perfil' }}
+        </h2>
+
+        <form (ngSubmit)="salvarPerfil()" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nome do Perfil -->
+            <div>
+              <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">
+                Nome do Perfil *
+              </label>
+              <input
+                id="nome"
+                type="text"
+                [(ngModel)]="novoPerfil.nome"
+                name="nome"
+                required
+                class="block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+                placeholder="Ex: Supervisor"
+              />
+            </div>
+
+            <!-- Cor do Perfil -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Cor do Perfil
+              </label>
+              <div class="flex gap-2">
+                @for (cor of coresDisponiveis; track cor.valor) {
+                  <button
+                    type="button"
+                    (click)="novoPerfil.cor = cor.valor"
+                    [style.background-color]="cor.valor"
+                    [class]="novoPerfil.cor === cor.valor ? 'ring-4 ring-offset-2 ring-blue-500' : ''"
+                    class="w-10 h-10 rounded-full transition duration-150 ease-in-out hover:scale-110"
+                    [title]="cor.nome"
+                  ></button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          <div>
+            <label for="descricao" class="block text-sm font-medium text-gray-700 mb-2">
+              Descrição *
+            </label>
+            <textarea
+              id="descricao"
+              [(ngModel)]="novoPerfil.descricao"
+              name="descricao"
+              required
+              rows="3"
+              class="block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+              placeholder="Descreva as responsabilidades deste perfil"
+            ></textarea>
+          </div>
+
+          <!-- Permissões -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+              Permissões
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              @for (permissao of permissoesDisponiveis; track permissao) {
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-150 ease-in-out">
+                  <input
+                    type="checkbox"
+                    [checked]="temPermissao(permissao)"
+                    (change)="togglePermissao(permissao)"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <span class="ml-3 text-sm text-gray-700">{{ permissao }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Botões de Ação -->
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="toggleForm()"
+              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-150 ease-in-out"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition duration-150 ease-in-out shadow-lg"
+            >
+              <span class="material-icons">{{ editingId ? 'save' : 'add' }}</span>
+              {{ editingId ? 'Salvar Alterações' : 'Adicionar Perfil' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Card com Filtros e Lista -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <!-- Barra de Busca -->
+      <div class="p-6 bg-gray-50 border-b border-gray-200">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="material-icons text-gray-400 text-xl">search</span>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="filtrarPerfis()"
+            placeholder="Buscar por nome ou descrição..."
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm"
+          />
+        </div>
+
+        <!-- Contador -->
+        <div class="mt-4 flex items-center gap-2 text-sm text-gray-600">
+          <span class="material-icons text-blue-600 text-lg">info</span>
+          <span>
+            Exibindo <strong class="text-gray-900">{{ perfisFiltrados.length }}</strong> de <strong class="text-gray-900">{{ perfis.length }}</strong> perfis
+          </span>
+        </div>
+      </div>
+
+      <!-- Lista de Perfis -->
+      <div class="p-6">
+        @if (perfisFiltrados.length === 0) {
+          <div class="text-center py-12">
+            <span class="material-icons text-6xl text-gray-300 mb-4">search_off</span>
+            <p class="text-lg font-medium text-gray-500">Nenhum perfil encontrado</p>
+            <p class="text-sm text-gray-400 mt-1">Tente ajustar os filtros de busca</p>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (perfil of perfisFiltrados; track perfil.id) {
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition duration-150 ease-in-out relative overflow-hidden">
+              <!-- Barra de Cor Superior -->
+              <div [style.background-color]="perfil.cor" class="absolute top-0 left-0 right-0 h-2"></div>
+
+              <!-- Status Badge -->
+              <div class="absolute top-4 right-4">
+                <button
+                  (click)="toggleAtivo(perfil)"
+                  [class]="perfil.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
+                  class="px-3 py-1 rounded-full text-xs font-medium transition duration-150 ease-in-out hover:scale-105"
+                >
+                  {{ perfil.ativo ? 'Ativo' : 'Inativo' }}
+                </button>
+              </div>
+
+              <!-- Ícone e Nome -->
+              <div class="flex items-start gap-4 mb-4 mt-2">
+                <div [style.background-color]="perfil.cor" class="flex-shrink-0 h-12 w-12 rounded-lg flex items-center justify-center">
+                  <span class="material-icons text-white text-2xl">badge</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ perfil.nome }}</h3>
+                  <p class="text-sm text-gray-500 mt-1">{{ perfil.descricao }}</p>
+                </div>
+              </div>
+
+              <!-- Estatísticas -->
+              <div class="flex items-center gap-2 mb-4 text-sm text-gray-600">
+                <span class="material-icons text-blue-600 text-lg">group</span>
+                <span><strong class="text-gray-900">{{ perfil.usuariosVinculados }}</strong> usuários vinculados</span>
+              </div>
+
+              <!-- Permissões -->
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="material-icons text-gray-400 text-sm">security</span>
+                  <span class="text-xs font-medium text-gray-700">Permissões ({{ perfil.permissoes.length }})</span>
+                </div>
+                @if (perfil.permissoes.length > 0) {
+                  <div class="flex flex-wrap gap-1">
+                    @for (permissao of perfil.permissoes.slice(0, 3); track permissao) {
+                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-blue-50 text-blue-700">
+                        {{ permissao }}
+                      </span>
+                    }
+                    @if (perfil.permissoes.length > 3) {
+                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-600">
+                        +{{ perfil.permissoes.length - 3 }}
+                      </span>
+                    }
+                  </div>
+                } @else {
+                  <p class="text-xs text-gray-400">Nenhuma permissão atribuída</p>
+                }
+              </div>
+
+              <!-- Data de Criação -->
+              <div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
+                <span class="material-icons text-gray-400" style="font-size: 16px;">calendar_today</span>
+                <span>Criado em {{ perfil.dataCriacao | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <!-- Ações -->
+              <div class="flex items-center gap-2 pt-4 border-t border-gray-200">
+                <button
+                  (click)="editarPerfil(perfil)"
+                  class="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition duration-150 ease-in-out"
+                >
+                  <span class="material-icons text-lg">edit</span>
+                  <span class="text-sm font-medium">Editar</span>
+                </button>
+                <button
+                  (click)="excluirPerfil(perfil.id)"
+                  class="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition duration-150 ease-in-out"
+                >
+                  <span class="material-icons text-lg">delete</span>
+                  <span class="text-sm font-medium">Excluir</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
