@@ -8,91 +8,81 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProfileController : ControllerBase
     {
-        // private readonly ProfileService _profileService;
+        private readonly IPerfilService _perfilService;
 
-        // public ProfileController(ProfileService profileService)
-        // {
-        //     _profileService = profileService;
-        // }
+        public ProfileController(IPerfilService perfilService)
+        {
+            _perfilService = perfilService;
+        }
 
-        // [HttpGet("profiles")]
-        // public async Task<IActionResult> GetProfiles()
-        // {
-        //     try
-        //     {
-        //         var profiles = await _profileService.GetAllAsync();
-        //         return Ok(profiles);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ex.Message });
-        //     }
-        // }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetProfiles()
+        {
+            try
+            {
+                var profiles = await _perfilService.GetAllAsync();
+                return Ok(profiles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
-        // [HttpGet("profiles/{id}")]
-        // public async Task<IActionResult> GetProfileById(int id)
-        // {
-        //     try
-        //     {
-        //         var profile = await _profileService.GetByIdAsync(id);
-        //         return Ok(profile);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ex.Message });
-        //     }
-        // }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProfileById(int id)
+        {
+            try
+            {
+                var profile = await _perfilService.GetByIdAsync(id);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
-        // [HttpPost("profiles")]
-        // public async Task<IActionResult> CreateProfile([FromBody] CreateProfileRequest request)
-        // {
-        //     try
-        //     {
-        //         if (string.IsNullOrWhiteSpace(request.Name))
-        //         {
-        //             return BadRequest(new { message = "Nome é obrigatório" });
-        //         }
+        [HttpPost]
+        public async Task<IActionResult> CreateProfile([FromBody] CreatePerfilRequest request)
+        {
+            try
+            {
+                var profile = await _perfilService.CreateAsync(request);
+                return CreatedAtAction(nameof(GetProfileById), new { id = profile.Id });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
-        //         var profile = await _profileService.CreateAsync(request.Name);
-        //         return CreatedAtAction(nameof(GetProfileById), new { id = profile.Id }, profile);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ex.Message });
-        //     }
-        // }
+        [HttpPut]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdatePerfilRequest request)
+        {
+            try
+            {
+                await _perfilService.UpdateAsync(request);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
-        // [HttpPut("profiles/{id}")]
-        // public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfileRequest request)
-        // {
-        //     try
-        //     {
-        //         if (string.IsNullOrWhiteSpace(request.Name))
-        //         {
-        //             return BadRequest(new { message = "Nome é obrigatório" });
-        //         }
-
-        //         await _profileService.UpdateAsync(id, request.Name);
-        //         return NoContent();
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ex.Message });
-        //     }
-        // }
-
-        // [HttpDelete("profiles/{id}")]
-        // public async Task<IActionResult> DeleteProfile(int id)
-        // {
-        //     try
-        //     {
-        //         await _profileService.DeleteAsync(id);
-        //         return NoContent();
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = ex.Message });
-        //     }
-        // }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProfile(int id)
+        {
+            try
+            {
+                await _perfilService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 }

@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { UserService } from '../../shared/services/user.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
@@ -14,11 +15,15 @@ export class Login {
   rememberMe: boolean = false;
   showPassword: boolean = false;
 
-  constructor(private router: Router) {}
+  private readonly _router = inject(Router);
+  private readonly _userService = inject(UserService);
 
   onSubmit() {
-    console.log('Login attempt:', { email: this.email, password: this.password, rememberMe: this.rememberMe });
-    // Aqui você pode adicionar a lógica de autenticação
+    this._userService.login(this.email, this.password).then(() => {
+      this._router.navigate(['/usuarios']);
+    }).catch(error => {
+      alert('Falha no login. Verifique suas credenciais e tente novamente.');
+    });
   }
 
   togglePasswordVisibility() {

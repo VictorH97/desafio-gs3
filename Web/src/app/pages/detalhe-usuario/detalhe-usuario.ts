@@ -1,18 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-
-interface Usuario {
-  id: number;
-  nome: string;
-  perfil: string;
-  email: string;
-  idade: number;
-  sexo: string;
-  nacionalidade: string;
-  estadoCivil: string;
-}
+import { UserService } from '../../shared/services/user.service';
+import { UserSessionService } from '../../shared/services/user-session-service';
+import { Usuario } from '../../shared/models/usuario';
 
 @Component({
   selector: 'app-detalhe-usuario',
@@ -26,20 +18,7 @@ export class DetalheUsuario implements OnInit {
   isLoading: boolean = true;
   
   // Simulando usuário logado
-  usuarioLogado = {
-    perfil: 'Administrador' // Altere para 'Usuário' ou outro para testar a restrição
-  };
-
-  usuario: Usuario = {
-    id: 0,
-    nome: '',
-    perfil: 'Usuário',
-    email: '',
-    idade: 18,
-    sexo: 'Masculino',
-    nacionalidade: 'Brasileiro',
-    estadoCivil: 'Solteiro'
-  };
+  usuarioLogado!: Usuario;
 
   perfisDisponiveis = ['Administrador', 'Gerente', 'Usuário', 'Visitante'];
   sexosDisponiveis = ['Masculino', 'Feminino', 'Outro'];
@@ -50,12 +29,13 @@ export class DetalheUsuario implements OnInit {
     'Espanhol', 'Francês', 'Italiano', 'Alemão', 'Inglês', 'Outro'
   ];
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  private readonly _userService = inject(UserService);
+  private readonly _userSessionService = inject(UserSessionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   ngOnInit() {
+    this.usuarioLogado = this._userSessionService.getUsuarioLogado()!;
     this.usuarioId = this.route.snapshot.paramMap.get('id');
     this.isNewUser = this.usuarioId === 'new';
 

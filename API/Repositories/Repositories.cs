@@ -63,4 +63,57 @@ namespace API.Repositories
     }
 
     #endregion
+
+    #region PerfilRepository
+
+    public class PerfilRepository : IPerfilRepository
+    {
+        private readonly AppDbContext _context;
+
+        public PerfilRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task AddAsync(Perfil perfil)
+        {
+            _context.Perfil.Add(perfil);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Perfil?> GetByIdAsync(int id)
+        {
+            return await _context.Perfil.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Perfil>> GetAllAsync()
+        {
+            return await _context.Perfil.ToListAsync();
+        }
+
+        public async Task<Perfil> CreateAsync(Perfil perfil)
+        {
+            _context.Perfil.Add(perfil);
+            await _context.SaveChangesAsync();
+            return perfil;
+        }
+
+        public async Task UpdateAsync(Perfil perfil)
+        {
+            _context.Perfil.Update(perfil);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var perfil = await _context.Perfil.FindAsync(id);
+            if (perfil != null)
+            {
+                _context.Perfil.Remove(perfil);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        #endregion
+    }
 }

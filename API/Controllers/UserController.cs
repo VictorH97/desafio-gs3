@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using API.Models.Request;
 using API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -21,9 +22,9 @@ namespace API.Controllers
         {
             try
             {
-                var token = await _userService.LoginAsync(request.Email, request.Senha);
+                var response = await _userService.LoginAsync(request.Email, request.Senha);
 
-                return Ok(token);
+                return Ok(new { token = response.Item1, user = response.Item2 } );
             }
             catch (UnauthorizedAccessException)
             {
@@ -35,7 +36,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("users")]
+        [HttpGet("all")]
         [Authorize(Roles = "Criar, Ler, Atualizar, Deletar")]
         public async Task<IActionResult> GetUsers()
         {
@@ -50,7 +51,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("users/{id}")]
+        [HttpGet("{id}")]
         [Authorize(Roles = "Ler")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -65,7 +66,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("users")]
+        [HttpPost]
         [Authorize(Roles = "Criar")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
@@ -77,7 +78,7 @@ namespace API.Controllers
                 }
 
                 var user = await _userService.CreateAsync(request);
-                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id });
             }
             catch (Exception ex)
             {
@@ -85,7 +86,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut("users/{id}")]
+        [HttpPut]
         [Authorize(Roles = "Atualizar")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
@@ -100,7 +101,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpDelete("users/{id}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Deletar")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {

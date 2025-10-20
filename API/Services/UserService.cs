@@ -3,6 +3,7 @@ using API.Repositories;
 using API.Helpers;
 using System.Threading.Tasks;
 using API.Models.Request;
+using API.Models.DTO;
 
 namespace API.Services
 {
@@ -17,7 +18,7 @@ namespace API.Services
             _tokenHelper = tokenHelper;
         }
 
-        public async Task<AccessToken> LoginAsync(string email, string senha)
+        public async Task<(AccessToken, UserDTO)> LoginAsync(string email, string senha)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(senha))
             {
@@ -30,7 +31,16 @@ namespace API.Services
             {
                 if (_tokenHelper.VerifyHash(senha, user.Senha))
                 {
-                    return _tokenHelper.GenerateJwtToken(user);
+                    return (_tokenHelper.GenerateJwtToken(user), new UserDTO()
+                    {
+                        Nome = user.Nome,
+                        Email = user.Email,
+                        PerfilId = user.PerfilId,
+                        EstadoCivil = user.EstadoCivil,
+                        Idade = user.Idade,
+                        Sexo = user.Sexo,
+                        Nacionalidade = user.Nacionalidade
+                    });
                 }
             }
 
@@ -49,7 +59,23 @@ namespace API.Services
 
         public async Task<Usuario> CreateAsync(CreateUserRequest request)
         {
-            throw new NotImplementedException();
+            var user = new Usuario
+            {
+                Id = Guid.NewGuid(),
+                Nome = request.Nome,
+                Email = request.Email,
+                Senha = _tokenHelper.GenerateHash(request.Senha),
+                PerfilId = request.PerfilId,
+                Idade = request.Idade,
+                Sexo = request.Sexo,
+                Nacionalidade = request.Nacionalidade,
+                EstadoCivil = request.EstadoCivil,
+                DataCriacao = DateTime.UtcNow,
+                DataAtualizacao = DateTime.UtcNow
+            };
+
+            await _userRepository.AddAsync(user);
+            return user;
         }
 
         public async Task UpdateUserAsync(UpdateUserRequest request)
@@ -59,10 +85,28 @@ namespace API.Services
             {
                 throw new KeyNotFoundException("Usuário não encontrado");
             }
+
+            user.Nome = request.Nome;
+            user.Email = request.Email;
+            user.Senha = _tokenHelper.GenerateHash(request.Senha);
+            user.PerfilId = request.PerfilId;
+            user.Idade = request.Idade;
+            user.Sexo = request.Sexo;
+            user.Nacionalidade = request.Nacionalidade;
+            user.EstadoCivil = request.EstadoCivil;
+            user.DataAtualizacao = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
         }
 
         public async Task DeleteUserAsync(Guid id)
         {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("Usuário não encontrado");
+            }
+
             await _userRepository.DeleteAsync(id);
         }
     }

@@ -1,12 +1,26 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { AuthService } from './shared/services/auth-service';
 
 @Component({
-  selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+    selector: 'app-root',
+    imports: [RouterOutlet],
+    templateUrl: './app.html',
+    styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('desafio');
+    private readonly _router = inject(Router);
+    private readonly _authService = inject(AuthService);
+
+    ngOnInit(): void {
+       this.init();
+    }
+
+    async init() {
+        if (await this._authService.isAuthenticated()) {
+            this._router.navigate(['/usuarios']);
+        } else {
+            this._router.navigate(['/login']);
+        }
+    }
 }

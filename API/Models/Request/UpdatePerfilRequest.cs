@@ -1,13 +1,11 @@
 using System;
 
-namespace API.Models;
+namespace API.Models.Request;
 
-public class Perfil
+public class UpdatePerfilRequest
 {
     public int Id { get; set; }
     public required string Nome { get; set; }
     public required string Descricao { get; set; }
     public required string Permissoes { get; set; }
-    public required DateTime DataCriacao { get; set; }
-    public required DateTime DataAtualizacao { get; set; }
 }
