@@ -7,6 +7,7 @@ import { Usuario } from '../../shared/models/usuario';
 import { ProfileService } from '../../shared/services/profile.service';
 import { Perfil } from '../../shared/models/perfil';
 import { EnumPerfil } from '../../shared/models/enum-perfil';
+import { UserSessionService } from '../../shared/services/user-session-service';
 
 @Component({
   selector: 'app-usuarios',
@@ -24,6 +25,7 @@ export class Usuarios implements OnInit {
   EnumPerfil = EnumPerfil;
 
   private readonly _userService = inject(UserService);
+  private readonly _userSessionService = inject(UserSessionService);
   private readonly _profileService = inject(ProfileService);
   private readonly _router = inject(Router);
 
@@ -73,5 +75,11 @@ export class Usuarios implements OnInit {
 
   adicionarUsuario() {
     this._router.navigate(['/detalhe-usuario', 'new']);
+  }
+
+  logout() {
+    this._userService.logout();
+    this._userSessionService.limparSessao();
+    this._router.navigate(['/login']);
   }
 }

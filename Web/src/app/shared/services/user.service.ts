@@ -45,7 +45,7 @@ export class UserService {
     }
 
     async logout(): Promise<void> {
-        localStorage.removeItem('token');
+        localStorage.removeItem('access_token');
         localStorage.removeItem('expiresIn');
     }
 }
