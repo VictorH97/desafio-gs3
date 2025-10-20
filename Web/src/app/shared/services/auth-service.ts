@@ -9,6 +9,5 @@ export class AuthService {
         const token = await localStorage.getItem('access_token');
 
         return !this.jwtHelper.isTokenExpired(token);
-        
     }
 }

@@ -2,5 +2,5 @@ export interface Perfil {
     id: number;
     nome: string;
     descricao: string;
-    permissoes: string[];
+    permissoes: string;
 }

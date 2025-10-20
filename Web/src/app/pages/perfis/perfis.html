@@ -48,25 +48,6 @@
                 placeholder="Ex: Supervisor"
               />
             </div>
-
-            <!-- Cor do Perfil -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Cor do Perfil
-              </label>
-              <div class="flex gap-2">
-                @for (cor of coresDisponiveis; track cor.valor) {
-                  <button
-                    type="button"
-                    (click)="novoPerfil.cor = cor.valor"
-                    [style.background-color]="cor.valor"
-                    [class]="novoPerfil.cor === cor.valor ? 'ring-4 ring-offset-2 ring-blue-500' : ''"
-                    class="w-10 h-10 rounded-full transition duration-150 ease-in-out hover:scale-110"
-                    [title]="cor.nome"
-                  ></button>
-                }
-              </div>
-            </div>
           </div>
 
           <!-- Descrição -->
@@ -165,65 +146,31 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (perfil of perfisFiltrados; track perfil.id) {
             <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition duration-150 ease-in-out relative overflow-hidden">
-              <!-- Barra de Cor Superior -->
-              <div [style.background-color]="perfil.cor" class="absolute top-0 left-0 right-0 h-2"></div>
-
-              <!-- Status Badge -->
-              <div class="absolute top-4 right-4">
-                <button
-                  (click)="toggleAtivo(perfil)"
-                  [class]="perfil.ativo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
-                  class="px-3 py-1 rounded-full text-xs font-medium transition duration-150 ease-in-out hover:scale-105"
-                >
-                  {{ perfil.ativo ? 'Ativo' : 'Inativo' }}
-                </button>
-              </div>
-
               <!-- Ícone e Nome -->
               <div class="flex items-start gap-4 mb-4 mt-2">
-                <div [style.background-color]="perfil.cor" class="flex-shrink-0 h-12 w-12 rounded-lg flex items-center justify-center">
-                  <span class="material-icons text-white text-2xl">badge</span>
-                </div>
                 <div class="flex-1">
                   <h3 class="text-lg font-semibold text-gray-900">{{ perfil.nome }}</h3>
                   <p class="text-sm text-gray-500 mt-1">{{ perfil.descricao }}</p>
                 </div>
               </div>
 
-              <!-- Estatísticas -->
-              <div class="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                <span class="material-icons text-blue-600 text-lg">group</span>
-                <span><strong class="text-gray-900">{{ perfil.usuariosVinculados }}</strong> usuários vinculados</span>
-              </div>
-
               <!-- Permissões -->
               <div class="mb-4">
                 <div class="flex items-center gap-2 mb-2">
                   <span class="material-icons text-gray-400 text-sm">security</span>
-                  <span class="text-xs font-medium text-gray-700">Permissões ({{ perfil.permissoes.length }})</span>
+                  <span class="text-xs font-medium text-gray-700">Permissões ({{ perfil.permissoes.split(',').length }})</span>
                 </div>
                 @if (perfil.permissoes.length > 0) {
                   <div class="flex flex-wrap gap-1">
-                    @for (permissao of perfil.permissoes.slice(0, 3); track permissao) {
+                    @for (permissao of perfil.permissoes.split(','); track permissao) {
                       <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-blue-50 text-blue-700">
                         {{ permissao }}
-                      </span>
-                    }
-                    @if (perfil.permissoes.length > 3) {
-                      <span class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-600">
-                        +{{ perfil.permissoes.length - 3 }}
                       </span>
                     }
                   </div>
                 } @else {
                   <p class="text-xs text-gray-400">Nenhuma permissão atribuída</p>
                 }
-              </div>
-
-              <!-- Data de Criação -->
-              <div class="flex items-center gap-2 mb-4 text-xs text-gray-500">
-                <span class="material-icons text-gray-400" style="font-size: 16px;">calendar_today</span>
-                <span>Criado em {{ perfil.dataCriacao | date:'dd/MM/yyyy' }}</span>
               </div>
 
               <!-- Ações -->

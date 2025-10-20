@@ -6,6 +6,7 @@ import { UserService } from '../../shared/services/user.service';
 import { Usuario } from '../../shared/models/usuario';
 import { ProfileService } from '../../shared/services/profile.service';
 import { Perfil } from '../../shared/models/perfil';
+import { EnumPerfil } from '../../shared/models/enum-perfil';
 
 @Component({
   selector: 'app-usuarios',
@@ -20,6 +21,7 @@ export class Usuarios implements OnInit {
   selectedPerfil: number = 0;
 
   perfis: Perfil[] = [];
+  EnumPerfil = EnumPerfil;
 
   private readonly _userService = inject(UserService);
   private readonly _profileService = inject(ProfileService);
@@ -40,7 +42,8 @@ export class Usuarios implements OnInit {
     this.usuariosFiltrados = this.usuarios.filter(usuario => {
       const matchSearch = usuario.nome.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                          usuario.email.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchPerfil = this.selectedPerfil === 0 || usuario.perfilId === this.selectedPerfil;
+      const matchPerfil = Number(this.selectedPerfil) === 0 || usuario.perfilId === Number(this.selectedPerfil);
+      
       return matchSearch && matchPerfil;
     });
   }

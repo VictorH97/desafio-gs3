@@ -28,7 +28,7 @@ export class ProfileService {
         return await lastValueFrom(this._httpClient.put<Perfil>(`${this._apiUrl}/profile`, profile)) as Perfil;
     }
 
-    async deleteProfile(id: string): Promise<void> {
+    async deleteProfile(id: number): Promise<void> {
         await lastValueFrom(this._httpClient.delete<void>(`${this._apiUrl}/profile/${id}`));
     }
 }

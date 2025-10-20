@@ -72,13 +72,8 @@ namespace API.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Nome) || string.IsNullOrWhiteSpace(request.Senha))
-                {
-                    return BadRequest(new { message = "Nome e senha são obrigatórios" });
-                }
-
                 var user = await _userService.CreateAsync(request);
-                return CreatedAtAction(nameof(GetUserById), new { id = user.Id });
+                return Ok(new { id = user.Id });
             }
             catch (Exception ex)
             {

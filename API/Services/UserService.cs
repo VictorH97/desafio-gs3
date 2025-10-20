@@ -64,7 +64,7 @@ namespace API.Services
                 Id = Guid.NewGuid(),
                 Nome = request.Nome,
                 Email = request.Email,
-                Senha = _tokenHelper.GenerateHash(request.Senha),
+                Senha = _tokenHelper.GenerateHash("mudar@123"),
                 PerfilId = request.PerfilId,
                 Idade = request.Idade,
                 Sexo = request.Sexo,
@@ -88,7 +88,6 @@ namespace API.Services
 
             user.Nome = request.Nome;
             user.Email = request.Email;
-            user.Senha = _tokenHelper.GenerateHash(request.Senha);
             user.PerfilId = request.PerfilId;
             user.Idade = request.Idade;
             user.Sexo = request.Sexo;

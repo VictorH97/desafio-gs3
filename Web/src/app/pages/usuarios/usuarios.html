@@ -59,10 +59,10 @@
               (change)="filtrarUsuarios()"
               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none bg-white"
             >
-              <option value="todos">Todos os perfis</option>
+              <option [value]="0">Todos os perfis</option>
 
               @for (item of perfis; track $index) {
-                <option [value]="item">{{ item }}</option>
+                <option [value]="item.id">{{ item.nome }}</option>
               }
             </select>
           </div>
@@ -194,14 +194,16 @@
                       title="Editar"
                     >
                       <span class="material-icons text-xl">edit</span>
-                    </button>
-                    <button
-                      (click)="excluirUsuario(usuario.id)"
-                      class="cursor-pointer inline-flex items-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition duration-150 ease-in-out"
-                      title="Excluir"
-                    >
-                      <span class="material-icons text-xl">delete</span>
-                    </button>
+                    </button> 
+                    @if (usuario.perfilId !== EnumPerfil.ADMINISTRADOR) {
+                       <button
+                        (click)="excluirUsuario(usuario.id)"
+                        class="cursor-pointer inline-flex items-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition duration-150 ease-in-out"
+                        title="Excluir"
+                      >
+                        <span class="material-icons text-xl">delete</span>
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>

@@ -49,7 +49,7 @@ namespace API.Controllers
             try
             {
                 var profile = await _perfilService.CreateAsync(request);
-                return CreatedAtAction(nameof(GetProfileById), new { id = profile.Id });
+                return Ok(new { id = profile.Id });
             }
             catch (Exception ex)
             {

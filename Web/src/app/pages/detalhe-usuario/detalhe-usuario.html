@@ -170,7 +170,7 @@
                     </div>
                     <select
                       id="perfil"
-                      [(ngModel)]="usuario.perfil"
+                      [(ngModel)]="usuario.perfilId"
                       name="perfil"
                       [disabled]="!canEditPerfil()"
                       [class.bg-gray-100]="!canEditPerfil()"
@@ -178,7 +178,7 @@
                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150 ease-in-out sm:text-sm appearance-none"
                     >
                       @for (perfil of perfisDisponiveis; track perfil) {
-                        <option [value]="perfil">{{ perfil }}</option>
+                        <option [value]="perfil.id">{{ perfil.nome }}</option>
                       }
                     </select>
                   </div>
@@ -193,10 +193,10 @@
                 <!-- Badge de Perfil Atual -->
                 <div class="p-4 bg-gray-50 rounded-lg">
                   <div class="flex items-center gap-3">
-                    <div [style.background-color]="getPerfilColor(usuario.perfil)" class="h-3 w-3 rounded-full"></div>
+                    <div [style.background-color]="getPerfilColor(usuario.perfil.nome)" class="h-3 w-3 rounded-full"></div>
                     <div>
-                      <p class="text-sm font-medium text-gray-900">Perfil atual: {{ usuario.perfil }}</p>
-                      <p class="text-xs text-gray-500 mt-1">Este perfil define as permissões de acesso do usuário</p>
+                      <p class="text-sm font-medium text-gray-900">Perfil atual: {{ usuario.perfil.nome }}</p>
+                      <p class="text-xs text-gray-500 mt-1">{{ usuario.perfil.descricao }}</p>
                     </div>
                   </div>
                 </div>
@@ -306,7 +306,7 @@
 
                   <button
                     type="submit"
-                    class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition duration-150 ease-in-out shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
+                    class="cursor-pointer flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition duration-150 ease-in-out shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-medium"
                   >
                     <span class="material-icons">{{ isNewUser ? 'add' : 'save' }}</span>
                     {{ isNewUser ? 'Criar Usuário' : 'Salvar Alterações' }}

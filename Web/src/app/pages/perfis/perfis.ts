@@ -1,17 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Perfil {
-  id: number;
-  nome: string;
-  descricao: string;
-  usuariosVinculados: number;
-  permissoes: string[];
-  cor: string;
-  dataCriacao: Date;
-  ativo: boolean;
-}
+import { Perfil } from '../../shared/models/perfil';
+import { ProfileService } from '../../shared/services/profile.service';
 
 @Component({
   selector: 'app-perfis',
@@ -30,19 +21,14 @@ export class Perfis implements OnInit {
   novoPerfil = {
     nome: '',
     descricao: '',
-    cor: '#3B82F6',
     permissoes: [] as string[]
   };
 
   permissoesDisponiveis = [
-    'Criar usuários',
-    'Editar usuários',
-    'Excluir usuários',
-    'Visualizar relatórios',
-    'Gerenciar perfis',
-    'Configurações do sistema',
-    'Backup de dados',
-    'Auditoria'
+    'Criar',
+    'Ler',
+    'Atualizar',
+    'Deletar'
   ];
 
   coresDisponiveis = [
@@ -55,54 +41,16 @@ export class Perfis implements OnInit {
     { nome: 'Cinza', valor: '#6B7280' }
   ];
 
+  private readonly _profileService = inject(ProfileService);
+
   ngOnInit() {
     this.carregarPerfis();
   }
 
-  carregarPerfis() {
+  async carregarPerfis() {
     // Dados mockados
-    this.perfis = [
-      {
-        id: 1,
-        nome: 'Administrador',
-        descricao: 'Acesso total ao sistema',
-        usuariosVinculados: 5,
-        permissoes: ['Criar usuários', 'Editar usuários', 'Excluir usuários', 'Visualizar relatórios', 'Gerenciar perfis', 'Configurações do sistema', 'Backup de dados', 'Auditoria'],
-        cor: '#EF4444',
-        dataCriacao: new Date('2024-01-15'),
-        ativo: true
-      },
-      {
-        id: 2,
-        nome: 'Gerente',
-        descricao: 'Gerenciamento de equipes e relatórios',
-        usuariosVinculados: 12,
-        permissoes: ['Criar usuários', 'Editar usuários', 'Visualizar relatórios'],
-        cor: '#3B82F6',
-        dataCriacao: new Date('2024-02-20'),
-        ativo: true
-      },
-      {
-        id: 3,
-        nome: 'Usuário',
-        descricao: 'Acesso básico ao sistema',
-        usuariosVinculados: 45,
-        permissoes: ['Visualizar relatórios'],
-        cor: '#10B981',
-        dataCriacao: new Date('2024-03-10'),
-        ativo: true
-      },
-      {
-        id: 4,
-        nome: 'Visitante',
-        descricao: 'Apenas visualização',
-        usuariosVinculados: 8,
-        permissoes: [],
-        cor: '#6B7280',
-        dataCriacao: new Date('2024-04-05'),
-        ativo: true
-      }
-    ];
+    this.perfis = await this._profileService.getProfiles();
+
     this.perfisFiltrados = [...this.perfis];
   }
 
@@ -124,7 +72,6 @@ export class Perfis implements OnInit {
     this.novoPerfil = {
       nome: '',
       descricao: '',
-      cor: '#3B82F6',
       permissoes: []
     };
     this.editingId = null;
@@ -143,7 +90,7 @@ export class Perfis implements OnInit {
     return this.novoPerfil.permissoes.includes(permissao);
   }
 
-  salvarPerfil() {
+  async salvarPerfil() {
     if (!this.novoPerfil.nome || !this.novoPerfil.descricao) {
       alert('Preencha todos os campos obrigatórios!');
       return;
@@ -157,9 +104,10 @@ export class Perfis implements OnInit {
           ...this.perfis[index],
           nome: this.novoPerfil.nome,
           descricao: this.novoPerfil.descricao,
-          cor: this.novoPerfil.cor,
-          permissoes: [...this.novoPerfil.permissoes]
+          permissoes: this.novoPerfil.permissoes.join(',')
         };
+
+        await this._profileService.updateProfile(this.perfis[index]);
       }
     } else {
       // Adicionar novo perfil
@@ -167,13 +115,12 @@ export class Perfis implements OnInit {
         id: Math.max(...this.perfis.map(p => p.id)) + 1,
         nome: this.novoPerfil.nome,
         descricao: this.novoPerfil.descricao,
-        usuariosVinculados: 0,
-        permissoes: [...this.novoPerfil.permissoes],
-        cor: this.novoPerfil.cor,
-        dataCriacao: new Date(),
-        ativo: true
+        permissoes: this.novoPerfil.permissoes.join(',')
       };
+
       this.perfis.push(novoPerfil);
+
+      await this._profileService.createProfile(novoPerfil);
     }
 
     this.perfisFiltrados = [...this.perfis];
@@ -186,21 +133,18 @@ export class Perfis implements OnInit {
     this.novoPerfil = {
       nome: perfil.nome,
       descricao: perfil.descricao,
-      cor: perfil.cor,
-      permissoes: [...perfil.permissoes]
+      permissoes: perfil.permissoes.split(',')
     };
     this.showForm = true;
   }
 
-  excluirPerfil(id: number) {
+  async excluirPerfil(id: number) {
     if (confirm('Tem certeza que deseja excluir este perfil?')) {
       this.perfis = this.perfis.filter(p => p.id !== id);
       this.perfisFiltrados = [...this.perfis];
-    }
-  }
 
-  toggleAtivo(perfil: Perfil) {
-    perfil.ativo = !perfil.ativo;
+      await this._profileService.deleteProfile(id);
+    }
   }
 
   getCorClass(cor: string): string {
